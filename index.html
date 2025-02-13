@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheFlyHyer Course Enrollment</title>
+    <script type="module">
+        // Import Firebase SDK (Modular Version)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+        import { getAuth, sendSignInLinkToEmail } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+        // Firebase Configuration (Replace with your Firebase credentials)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth();
+
+        // Validation Functions
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function isValidMobile(mobile) {
+            return /^\d{10}$/.test(mobile); // Ensures a 10-digit number
+        }
+
+        // Handle Form Submission
+        document.getElementById('enrollmentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Get form values
+            const name = document.getElementById('name').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const course = document.getElementById('course').value;
+            const referral = document.getElementById('referral').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Basic Validation
+            if (!name || !mobile || !email || !course) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            if (!isValidEmail(email)) {
+                alert('Please enter a valid email.');
+                return;
+            }
+            if (!isValidMobile(mobile)) {
+                alert('Please enter a valid 10-digit mobile number.');
+                return;
+            }
+
+            // Show confirmation before submitting
+            if (!confirm(`Confirm your enrollment?\n\nName: ${name}\nMobile: ${mobile}\nEmail: ${email}\nCourse: ${course}\nReferral Code: ${referral || 'N/A'}`)) {
+                return;
+            }
+
+            // Disable button while submitting
+            submitBtn.innerText = "Submitting...";
+            submitBtn.disabled = true;
+
+            try {
+                await addDoc(collection(db, 'enrollments'), {
+                    name: name,
+                    mobile: mobile.toString(),
+                    email: email,
+                    course: course,
+                    referralCode: referral || "None",
+                    timestamp: serverTimestamp()
+                });
+
+                // Send confirmation email
+                const actionCodeSettings = {
+                    url: "https://yourwebsite.com/thank-you",
+                    handleCodeInApp: true
+                };
+                await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+                alert('Confirmation email sent!');
+
+                // Show Thank You Message
+                document.getElementById('form-container').innerHTML = `
+                    <h2>🎉 Thank You for Enrolling! 🎉</h2>
+                    <p>We have received your enrollment. Check your email for a confirmation message.</p>
+                    <a href="index.html">Back to Home</a>
+                `;
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('An error occurred. Please try again.');
+            }
+
+            submitBtn.innerText = "Submit";
+            submitBtn.disabled = false;
+        });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .announcement {
+            background-color: #ffdd57;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .social-links a {
+            margin: 0 10px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .testimonials {
+            margin-top: 20px;
+        }
+        .testimonial {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="announcement">
+            🎁 **Special Offer:** Enroll in a ₹30,000+ course & win a **FREE Laptop**!  
+            🎯 **Limited Time Only** – Refer a friend & get ₹500 cashback! 💰
+        </div>
+
+        <div id="form-container">
+            <form id="enrollmentForm">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="mobile">Mobile Number:</label>
+                    <input type="tel" id="mobile" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="course">Select Course:</label>
+                    <select id="course" required>
+                        <option value="">--Select a Course--</option>
+                        <option value="Web Development">Web Development</option>
+                        <option value="Java, JS, PHP">Java, JS, PHP</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="referral">Referral Code (Optional):</label>
+                    <input type="text" id="referral">
+                </div>
+                <div class="form-group">
+                    <button type="submit" id="submitBtn">Submit</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="testimonials">
+            <h3>🌟 What Our Students Say 🌟</h3>
+            <div class="testimonial">"Amazing courses! I got a job after completing the Web Development course!" – Rahul</div>
+            <div class="testimonial">"Best learning experience ever. The mentors are great!" – Priya</div>
+        </div>
+
+        <div class="social-links">
+            <h3>📲 Connect with us:</h3>
+            <a href="https://instagram.com/theflyhyer" target="_blank">Instagram</a> |
+            <a href="https://wa.me/yourwhatsapplink" target="_blank">WhatsApp</a> |
+            <a href="mailto:info@theflyhyer.com">Email Us</a>
+        </div>
+    </div>
+</body>
+</html>

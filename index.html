@@ -4,97 +4,177 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TheFlyHyer Course Enrollment</title>
-    <meta name="description" content="Enroll in top tech courses with TheFlyHyer and get exclusive benefits!">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Enroll in TheFlyHyer Courses. Learn Web Development, Digital Marketing, App Development & more!">
+    <meta name="keywords" content="TheFlyHyer, courses, web development, digital marketing, programming, JavaScript, Python">
+    <meta name="author" content="TheFlyHyer">
     <meta property="og:title" content="TheFlyHyer Courses">
-    <meta property="og:description" content="Enroll today and get a free laptop on selected courses!">
-    <meta property="og:image" content="your-image-link.jpg">
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-</head>
-<body>
-    <div class="container">
-        <div class="announcement">🎉 Free Laptop on Courses ₹30,000+! 🎉</div>
-        
-        <form id="enrollmentForm" class="animated-form">
-            <div class="form-group">
-                <input type="text" id="name" required>
-                <label for="name">Your Name</label>
-            </div>
-            <div class="form-group">
-                <input type="tel" id="mobile" required>
-                <label for="mobile">Mobile Number</label>
-            </div>
-            <div class="form-group">
-                <input type="email" id="email" required>
-                <label for="email">Email</label>
-            </div>
-            <div class="form-group">
-                <select id="course" required>
-                    <option value="">--Select a Course--</option>
-                    <option value="Web Development">Web Development</option>
-                    <option value="App Development">App Development</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <input type="text" id="referral">
-                <label for="referral">Referral Code (Optional)</label>
-            </div>
-            <button type="submit" class="cta-button">Submit</button>
-        </form>
-        
-        <div id="thankYouMessage" class="hidden">🎉 Thank you for enrolling! We'll contact you soon.</div>
-    </div>
-    
-    <div class="social-media">
-        <a href="https://instagram.com/theflyhyer" class="social-link instagram">Instagram</a>
-        <a href="mailto:contact@theflyhyer.com" class="social-link email">Email</a>
-        <a href="https://wa.me/YOUR_NUMBER" class="social-link whatsapp">WhatsApp</a>
-    </div>
-    
-    <script>
-        // Your Firebase configuration (replace with actual credentials)
+    <meta property="og:description" content="Join TheFlyHyer Courses and learn the latest in technology and marketing!">
+    <meta property="og:image" content="your-image-url.jpg">
+    <meta property="og:url" content="https://theflyhyercourses.netlify.app/">
+
+    <!-- Firebase SDK (Modular Syntax) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
         const firebaseConfig = {
-           apiKey: "AIzaSyD9W7wKsYw1zfEzQ4PNowKxma2OcfwawNY",
-           authDomain: "theflyhyer-courses.firebaseapp.com",
-           databaseURL: "https://theflyhyer-courses-default-rtdb.asia-southeast1.firebasedatabase.app",
-           projectId: "theflyhyer-courses",
-           storageBucket: "theflyhyer-courses.firebasestorage.app",
-           messagingSenderId: "587279383222",
-           appId: "1:587279383222:web:c960e8a62ab12ab57a4417",
-           measurementId: "G-JD9BNE3M85"
+            apiKey: "AIzaSyD9W7wKsYw1zfEzQ4PNowKxma2OcfwawNY",
+  authDomain: "theflyhyer-courses.firebaseapp.com",
+  databaseURL: "https://theflyhyer-courses-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "theflyhyer-courses",
+  storageBucket: "theflyhyer-courses.firebasestorage.app",
+  messagingSenderId: "587279383222",
+  appId: "1:587279383222:web:c960e8a62ab12ab57a4417",
+  measurementId: "G-JD9BNE3M85"
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-        // Handle form submission
-        document.getElementById('enrollmentForm').addEventListener('submit', (e) => {
+        document.getElementById('enrollmentForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-
             const name = document.getElementById('name').value;
             const mobile = document.getElementById('mobile').value;
             const email = document.getElementById('email').value;
             const course = document.getElementById('course').value;
-            const referral = document.getElementById('referral').value;
 
-            db.collection('enrollments').add({
-                name: name,
-                mobile: mobile,
-                email: email,
-                course: course,
-                referral: referral || "N/A",
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            })
-            .then(() => {
-                document.getElementById('thankYouMessage').classList.remove('hidden');
+            try {
+                await addDoc(collection(db, "enrollments"), {
+                    name: name,
+                    mobile: mobile,
+                    email: email,
+                    course: course,
+                    timestamp: serverTimestamp()
+                });
+
+                alert('✅ Form submitted successfully!');
                 document.getElementById('enrollmentForm').reset();
-            })
-            .catch((error) => {
-                console.error("Error adding document: ", error);
-            });
+            } catch (error) {
+                console.error('❌ Error submitting form:', error);
+                alert('⚠ Error submitting form. Please try again.');
+            }
         });
     </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 320px;
+            text-align: center;
+        }
+        .announcement {
+            background-color: #ffdd57;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { background-color: #ffdd57; }
+            50% { background-color: #ffcc00; }
+            100% { background-color: #ffdd57; }
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease-in-out;
+        }
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+        .social-media {
+            margin-top: 20px;
+        }
+        .social-media a {
+            display: inline-block;
+            margin: 0 10px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="announcement">
+            🎉 Enroll in any course worth ₹30,000 or more and WIN a FREE LAPTOP! 🎉
+        </div>
+        <form id="enrollmentForm">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="mobile">Mobile Number:</label>
+                <input type="tel" id="mobile" name="mobile" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="course">Select Course:</label>
+                <select id="course" name="course" required>
+                    <option value="">--Select a Course--</option>
+                    <option value="HTML,CSS">HTML, CSS</option>
+                    <option value="C,C++,C#">C, C++, C#</option>
+                    <option value="Java,Javascript,PHP">Java, Javascript, PHP</option>
+                    <option value="React Js,Node Js,Angular JS">React Js, Node Js, Angular JS</option>
+                    <option value="Digital & Social Media Marketing">Digital & Social Media Marketing</option>
+                    <option value="APP Development,Flutter,Bootstrap">APP Development, Flutter, Bootstrap</option>
+                    <option value=".NET,Python,DBMS,DSA">.NET, Python, DBMS, DSA</option>
+                    <option value="Web Development">Web Development</option>
+                    <option value="Graphic Design,UI/UX Design">Graphic Design, UI/UX Design</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+
+        <!-- Social Media Links -->
+        <div class="social-media">
+            <p>Follow us on:</p>
+            <a href="https://instagram.com/theflyhyer" target="_blank">Instagram</a> |
+            <a href="https://wa.me/YOUR_WHATSAPP_NUMBER" target="_blank">WhatsApp</a> |
+            <a href="mailto:your-email@example.com">Email Us</a>
+        </div>
+    </div>
+
 </body>
 </html>
